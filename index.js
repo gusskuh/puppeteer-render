@@ -8,8 +8,9 @@ app.get('/', (req, res) => {
 });
 
 
-app.get('/scrape', (req, res) => {
-    scrape(req, res);
+app.get('/scrape/:ticker', (req, res) => {
+    const ticker  = req.params.ticker;
+    scrape(req, res, ticker);
 })
 
 app.listen(6543, () => {
