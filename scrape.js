@@ -14,12 +14,12 @@ const scrape = async (req, res, ticker) => {
         const page = await browser.newPage();
 
         // Navigate the page to a URL
-        await page.goto(`https://www.ynet.co.il`);
-        const textSelector = await page.waitForSelector('.textDiv');
+        await page.goto(`https://finance.yahoo.com`);
+        const textSelector = await page.title();
         const title = await textSelector?.evaluate(el => el.textContent);
 
 
-    return title;
+    return textSelector;
     // return {stockData, chartData};
     } catch (e) {
         console.log('ERROR HAS ACCURED', e)
