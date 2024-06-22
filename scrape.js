@@ -19,7 +19,7 @@ const scrape = async (req, res, ticker) => {
         const title = await textSelector?.evaluate(el => el.textContent);
 
 
-    res.send(title);
+    return title;
     // return {stockData, chartData};
     } catch (e) {
         console.log('ERROR HAS ACCURED', e)
