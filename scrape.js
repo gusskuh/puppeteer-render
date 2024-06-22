@@ -14,8 +14,8 @@ const scrape = async (req, res, ticker) => {
         const page = await browser.newPage();
 
         // Navigate the page to a URL
-        await page.goto(`https://finance.yahoo.com`);
-        const textSelector = await page.waitForSelector('.titles');
+        await page.goto(`https://www.ynet.co.il`);
+        const textSelector = await page.waitForSelector('.textDiv');
         const title = await textSelector?.evaluate(el => el.textContent);
 
 
