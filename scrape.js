@@ -25,6 +25,7 @@ export default async function scrape(req, res, ticker) {
         : puppeteer.executablePath(), 
     });
 
+    
     try {
         cron.schedule('0 14 * * *', () => {
             init(financeSelector, financeUrl, 'finance');
