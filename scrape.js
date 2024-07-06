@@ -17,7 +17,7 @@ const scrape = async (req, res, ticker) => {
         await page.goto(`https://finance.yahoo.com`);
         const textSelector = await page.title();
         console.log('textSelector',textSelector)
-        const title = await textSelector?.evaluate(el => el.textContent);
+        // const title = await textSelector?.evaluate(el => el.textContent);
 
 
     return textSelector;
