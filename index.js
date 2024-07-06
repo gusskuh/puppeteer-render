@@ -13,9 +13,9 @@ app.get('/scrape/:ticker', (req, res) => {
     scrape(req, res, ticker);
 })
 
-app.get('/get-title', (req, res) => {
+app.get('/get-title',async (req, res) => {
     const ticker  = req.params.ticker;
-    const title = scrape();
+    const title = await scrape();
     console.log('title',title)
     res.send(title);
 })
