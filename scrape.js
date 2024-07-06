@@ -16,7 +16,7 @@ const scrape = async (req, res, ticker) => {
         // Navigate the page to a URL
         await page.goto(`https://developer.chrome.com/`);
         // const textSelector = await page.title();
-        console.log('textSelector',textSelector)
+        // console.log('textSelector',textSelector)
         const textSelector = await page.waitForSelector('.titles');
         const fullTitle = await textSelector?.evaluate(el => el.textContent);
     // 
