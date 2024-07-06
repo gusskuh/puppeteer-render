@@ -14,13 +14,16 @@ const scrape = async (req, res, ticker) => {
         const page = await browser.newPage();
 
         // Navigate the page to a URL
-        await page.goto(`https://finance.yahoo.com`);
-        const textSelector = await page.title();
+        await page.goto(`https://developer.chrome.com/`);
+        // const textSelector = await page.title();
         console.log('textSelector',textSelector)
+        const textSelector = await page.waitForSelector('.titles');
+        const fullTitle = await textSelector?.evaluate(el => el.textContent);
+    // 
         // const title = await textSelector?.evaluate(el => el.textContent);
 
 
-    return textSelector;
+    return fullTitle;
     // return {stockData, chartData};
     } catch (e) {
         console.log('ERROR HAS ACCURED', e)
