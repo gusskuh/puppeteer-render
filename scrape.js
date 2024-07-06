@@ -4,6 +4,7 @@ require('dotenv').config();
 const scrape = async (req, res, ticker) => {
     // Launch the browser and open a new blank page
     const browser = await puppeteer.launch({
+        timeout: 180000,
         args: ['--no-sandbox', '--disable-setuid-sandbox', '--single-process', '--no-zygote'],
         executablePath: process.env.NODE_ENV === 'production' 
         ? process.env.PUPPETEER_EXECUTABLE_PATH
