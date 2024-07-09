@@ -37,7 +37,7 @@ export default async function scrape(req, res, ticker) {
             console.log('starting world job')
             init(categorySelector, worldUrl, 'world');
         });
-        cron.schedule('*/2 * * * *', () => {
+        cron.schedule('0 9 * * *', () => {
             console.log('starting healths job')
             init(categorySelector, helthUrl, 'health');
         });
@@ -135,8 +135,9 @@ async function getTitle(selector, url) {
     const page = await browser.newPage();
 
     // Navigate the page to a URL.
+    console.log('navigating to url', url);
     await page.goto(url);
-
+    console.log('trying to locate selctor:', selector);
     // Locate the full title with a unique string.
     const textSelector = await page.waitForSelector(selector);
     const fullTitle = await textSelector?.evaluate(el => el.textContent);
