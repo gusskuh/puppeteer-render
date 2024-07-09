@@ -15,6 +15,13 @@ const worldUrl = 'https://www.yahoo.com/news/world/';
 const helthUrl = 'https://www.yahoo.com/lifestyle/tagged/health';
 const financeUrl = 'https://finance.yahoo.com/';
 
+const deafualtImages = {
+    finance: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w2MjgwMjR8MHwxfHNlYXJjaHwxfHxmaW5hbmNlfGVufDB8fHx8MTcyMDUxMzcyN3ww&ixlib=rb-4.0.3&q=80&w=1080',
+    health: 'https://images.unsplash.com/photo-1477332552946-cfb384aeaf1c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w2MjgwMjR8MHwxfHNlYXJjaHwxfHxoZWFsdGh8ZW58MHx8fHwxNzIwNTE0MTE1fDA&ixlib=rb-4.0.3&q=80&w=1080',
+    world: 'https://images.unsplash.com/photo-1521295121783-8a321d551ad2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w2MjgwMjR8MHwxfHNlYXJjaHwxfHx3b3JsZCUyMGNvbnRpbmVudHN8ZW58MHx8fHwxNzIwNTE0MDQ5fDA&ixlib=rb-4.0.3&q=80&w=1080',
+    science: 'https://images.unsplash.com/photo-1635372722656-389f87a941b7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w2MjgwMjR8MHwxfHNlYXJjaHwxfHxlcXVhdGlvbnN8ZW58MHx8fHwxNzIwNTE0MjMxfDA&ixlib=rb-4.0.3&q=80&w=1080'
+}
+
 export default async function scrape(req, res, ticker) {
     // Launch the browser and open a new blank page
     const browser = await puppeteer.launch({
@@ -101,8 +108,10 @@ async function init(selector, url, category) {
             articleObj.timeStamp = Date.now();
             articleObj.category = category;
             console.log('articleObj.keywordForImage', articleObj.keywordForImage)
-            const imgUrl = await getImgUrl(articleObj.keywordForImage);
-            articleObj.imgUrl = imgUrl;
+            const imgData = await getImgUrl(articleObj.keywordForImage, category);
+            articleObj.imgUrl = imgData.imgUrl;
+            articleObj.imgUser = imgData.userName;
+            articleObj.imgUserProfile = imgData.userProfile;
             article = JSON.stringify(articleObj)
             console.log(article);
         
@@ -137,7 +146,7 @@ async function getTitle(selector, url) {
     return fullTitle
 }
 
-async function getImgUrl(subtitle) {
+async function getImgUrl(subtitle, category) {
     const unsplashAccessKey = process.env.UNSPLASH_ACCESS_KEY;
 
     const unsplash = createApi({
@@ -153,8 +162,16 @@ async function getImgUrl(subtitle) {
     });
 
     const imageUrl = imageResponse.response.results[0]?.urls?.regular;
-    if (imageUrl) {
-        // console.log(imageUrl)
-        return imageUrl;
+    if (!imageUrl) {
+        imageUrl = deafualtImages[category]
+    }
+    const userName = imageResponse.response.results[0]?.user?.name;
+    const userProfile = imageResponse.response.results[0]?.user?.links?.html;
+
+        console.log(imageUrl)
+        return {
+            imgUrl,
+            userName,
+            userProfile
     }
 }
