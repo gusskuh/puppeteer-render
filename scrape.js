@@ -25,13 +25,13 @@ const deafualtImages = {
 export default async function scrape(req, res, ticker) {
     
     try {
-        cron.schedule('50 23 * * *', () => {
+        cron.schedule('56 23 * * *', () => {
             init(financeSelector, financeUrl, 'finance');
         });
-        cron.schedule('0 15 * * *', () => {
+        cron.schedule('0 24 * * *', () => {
             init(categorySelector, scienceUrl, 'science');
         });
-        cron.schedule('0 16 * * *', () => {
+        cron.schedule('1 0 * * *', () => {
             init(categorySelector, worldUrl, 'world');
         });
         cron.schedule('0 17 * * *', () => {
