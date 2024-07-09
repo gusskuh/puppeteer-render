@@ -23,18 +23,9 @@ const deafualtImages = {
 }
 
 export default async function scrape(req, res, ticker) {
-    // Launch the browser and open a new blank page
-    const browser = await puppeteer.launch({
-        timeout: 180000,
-        args: ['--no-sandbox', '--disable-setuid-sandbox', '--single-process', '--no-zygote'],
-        executablePath: process.env.NODE_ENV === 'production' 
-        ? process.env.PUPPETEER_EXECUTABLE_PATH
-        : puppeteer.executablePath(), 
-    });
-
-
+    
     try {
-        cron.schedule('41 23 * * *', () => {
+        cron.schedule('50 23 * * *', () => {
             init(financeSelector, financeUrl, 'finance');
         });
         cron.schedule('0 15 * * *', () => {
@@ -47,7 +38,6 @@ export default async function scrape(req, res, ticker) {
             init(categorySelector, helthUrl, 'health');
         });
 
-    // const article = await init(financeSelector, financeUrl, 'finance');
 
 
     return;
@@ -55,7 +45,7 @@ export default async function scrape(req, res, ticker) {
     } catch (e) {
         console.log('ERROR HAS ACCURED', e)
     } finally {
-        await browser.close();
+        // await browser.close();
     }
 }
 
@@ -130,7 +120,14 @@ async function init(selector, url, category) {
 
 async function getTitle(selector, url) {
     // Launch the browser and open a new blank page
-    const browser = await puppeteer.launch({timeout: 180000});
+    const browser = await puppeteer.launch({
+        timeout: 180000,
+        args: ['--no-sandbox', '--disable-setuid-sandbox', '--single-process', '--no-zygote'],
+        executablePath: process.env.NODE_ENV === 'production' 
+        ? process.env.PUPPETEER_EXECUTABLE_PATH
+        : puppeteer.executablePath(), 
+    });
+
     const page = await browser.newPage();
 
     // Navigate the page to a URL.
