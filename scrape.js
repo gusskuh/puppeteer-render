@@ -26,15 +26,19 @@ export default async function scrape(req, res, ticker) {
     
     try {
         cron.schedule('0 10 * * *', () => {
+            console.log('starting finance job')
             init(financeSelector, financeUrl, 'finance');
         });
-        cron.schedule('*/3 * * * *', () => {
+        cron.schedule('0 11 * * *', () => {
+            console.log('starting science job')
             init(categorySelector, scienceUrl, 'science');
         });
-        cron.schedule('*/4 * * * *', () => {
+        cron.schedule('0 12 * * *', () => {
+            console.log('starting world job')
             init(categorySelector, worldUrl, 'world');
         });
-        cron.schedule('*/5 * * * *', () => {
+        cron.schedule('*/2 * * * *', () => {
+            console.log('starting healths job')
             init(categorySelector, helthUrl, 'health');
         });
 
