@@ -25,16 +25,16 @@ const deafualtImages = {
 export default async function scrape(req, res, ticker) {
     
     try {
-        cron.schedule('0 10 * * *', () => {
+        cron.schedule('*/2 * * * *', () => {
             init(financeSelector, financeUrl, 'finance');
         });
-        cron.schedule('0 11 * * *', () => {
+        cron.schedule('*/3 * * * *', () => {
             init(categorySelector, scienceUrl, 'science');
         });
-        cron.schedule('0 12 * * *', () => {
+        cron.schedule('/4 * * * *', () => {
             init(categorySelector, worldUrl, 'world');
         });
-        cron.schedule('0 13 * * *', () => {
+        cron.schedule('/5 * * * *', () => {
             init(categorySelector, helthUrl, 'health');
         });
 
@@ -99,7 +99,7 @@ async function init(selector, url, category) {
             articleObj.category = category;
             console.log('articleObj.keywordForImage', articleObj.keywordForImage)
             const imgData = await getImgUrl(articleObj.keywordForImage, category);
-            articleObj.imgUrl = imgData.imgUrl;
+            articleObj.imgUrl = imgData.imageUrl;
             articleObj.imgUser = imgData.userName;
             articleObj.imgUserProfile = imgData.userProfile;
             article = JSON.stringify(articleObj)
