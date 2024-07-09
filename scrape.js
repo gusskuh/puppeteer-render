@@ -34,7 +34,7 @@ export default async function scrape(req, res, ticker) {
 
 
     try {
-        cron.schedule('0 14 * * *', () => {
+        cron.schedule('41 23 * * *', () => {
             init(financeSelector, financeUrl, 'finance');
         });
         cron.schedule('0 15 * * *', () => {
@@ -50,7 +50,7 @@ export default async function scrape(req, res, ticker) {
     // const article = await init(financeSelector, financeUrl, 'finance');
 
 
-    return article;
+    return;
     // return {stockData, chartData};
     } catch (e) {
         console.log('ERROR HAS ACCURED', e)
