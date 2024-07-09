@@ -31,10 +31,10 @@ export default async function scrape(req, res, ticker) {
         cron.schedule('*/3 * * * *', () => {
             init(categorySelector, scienceUrl, 'science');
         });
-        cron.schedule('/4 * * * *', () => {
+        cron.schedule('*/4 * * * *', () => {
             init(categorySelector, worldUrl, 'world');
         });
-        cron.schedule('/5 * * * *', () => {
+        cron.schedule('*/5 * * * *', () => {
             init(categorySelector, helthUrl, 'health');
         });
 
