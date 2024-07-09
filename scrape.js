@@ -28,7 +28,7 @@ export default async function scrape(req, res, ticker) {
         cron.schedule('* * * * *', () => {
             init(financeSelector, financeUrl, 'finance');
         });
-        cron.schedule('0 24 * * *', () => {
+        cron.schedule('0 0 * * *', () => {
             init(categorySelector, scienceUrl, 'science');
         });
         cron.schedule('1 0 * * *', () => {
@@ -167,7 +167,7 @@ async function getImgUrl(subtitle, category) {
 
         console.log(imageUrl)
         return {
-            imgUrl,
+            imageUrl,
             userName,
             userProfile
     }
