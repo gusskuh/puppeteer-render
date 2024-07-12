@@ -136,7 +136,7 @@ async function getTitle(selector, url) {
 
     // Navigate the page to a URL.
     console.log('navigating to url', url);
-    await page.goto(url);
+    await page.goto(url, {waitUntil: 'load', timeout: 180000});
     console.log('trying to locate selctor:', selector);
     // Locate the full title with a unique string.
     const textSelector = await page.waitForSelector(selector);
