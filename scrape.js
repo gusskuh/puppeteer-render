@@ -148,7 +148,7 @@ async function getTitle(selector, url, category) {
     
         // Print the full title.
         getTitlecounter = 0;
-        console.log('get title counter is', counter)
+        console.log('get title counter is', getTitlecounter)
     
         await browser.close();
         return fullTitle
@@ -157,7 +157,7 @@ async function getTitle(selector, url, category) {
         
         getTitlecounter++;
         console.log('GET TITLE FAILED!!!!', err)
-        if (counter >=3) {
+        if (getTitlecounter >=3) {
             init(selector, url, category);
         } else {
             getTitlecounter = 0;
