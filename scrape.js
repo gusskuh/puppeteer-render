@@ -44,7 +44,7 @@ export default async function scrape(req, res, ticker) {
             init(categorySelector, helthUrl, 'health');
         });
 
-        init(categorySelector, worldUrl, 'world');
+        // init(categorySelector, worldUrl, 'world');
 
     return;
     // return {stockData, chartData};
