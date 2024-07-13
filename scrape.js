@@ -22,6 +22,8 @@ const deafualtImages = {
     science: 'https://images.unsplash.com/photo-1635372722656-389f87a941b7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w2MjgwMjR8MHwxfHNlYXJjaHwxfHxlcXVhdGlvbnN8ZW58MHx8fHwxNzIwNTE0MjMxfDA&ixlib=rb-4.0.3&q=80&w=1080'
 }
 
+let getTitlecounter = 0;
+
 export default async function scrape(req, res, ticker) {
     
     try {
@@ -42,7 +44,7 @@ export default async function scrape(req, res, ticker) {
             init(categorySelector, helthUrl, 'health');
         });
 
-
+        init(categorySelector, worldUrl, 'world');
 
     return;
     // return {stockData, chartData};
@@ -58,7 +60,7 @@ async function init(selector, url, category) {
         console.log('Starting...')
         const apiKey = process.env.AI_API_KEY;
         // console.log('apiKEy', apiKey)
-        const title = await getTitle(selector, url);
+        const title = await getTitle(selector, url, category);
         console.log('Title', title);
         
         // return;
@@ -122,30 +124,48 @@ async function init(selector, url, category) {
 
 }
 
-async function getTitle(selector, url) {
+async function getTitle(selector, url, category) {
     // Launch the browser and open a new blank page
-    const browser = await puppeteer.launch({
-        timeout: 180000,
-        args: ['--no-sandbox', '--disable-setuid-sandbox', '--single-process', '--no-zygote'],
-        executablePath: process.env.NODE_ENV === 'production' 
-        ? process.env.PUPPETEER_EXECUTABLE_PATH
-        : puppeteer.executablePath(), 
-    });
 
-    const page = await browser.newPage();
+    try {
+        const browser = await puppeteer.launch({
+            timeout: 180000,
+            args: ['--no-sandbox', '--disable-setuid-sandbox', '--single-process', '--no-zygote'],
+            executablePath: process.env.NODE_ENV === 'production' 
+            ? process.env.PUPPETEER_EXECUTABLE_PATH
+            : puppeteer.executablePath(), 
+        });
+    
+        const page = await browser.newPage();
+    
+        // Navigate the page to a URL.
+        console.log('navigating to url', url);
+        await page.goto(url, {waitUntil: 'load', timeout: 180000});
+        console.log('trying to locate selctor:', selector);
+        // Locate the full title with a unique string.
+        const textSelector = await page.waitForSelector(selector);
+        const fullTitle = await textSelector?.evaluate(el => el.textContent);
+    
+        // Print the full title.
+        getTitlecounter = 0;
+        console.log('get title counter is', counter)
+    
+        await browser.close();
+        return fullTitle
 
-    // Navigate the page to a URL.
-    console.log('navigating to url', url);
-    await page.goto(url, {waitUntil: 'load', timeout: 180000});
-    console.log('trying to locate selctor:', selector);
-    // Locate the full title with a unique string.
-    const textSelector = await page.waitForSelector(selector);
-    const fullTitle = await textSelector?.evaluate(el => el.textContent);
+    } catch(err) {
+        
+        getTitlecounter++;
+        console.log('GET TITLE FAILED!!!!', err)
+        if (counter >=3) {
+            init(selector, url, category);
+        } else {
+            getTitlecounter = 0;
+            console.log('I tried 2 times and failed')
+        }
 
-    // Print the full title.
+    }
 
-    await browser.close();
-    return fullTitle
 }
 
 async function getImgUrl(subtitle, category) {
