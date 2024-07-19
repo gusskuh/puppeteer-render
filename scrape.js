@@ -45,6 +45,9 @@ export default async function scrape(req, res, ticker) {
         });
 
         // init(categorySelector, worldUrl, 'world');
+        // init(financeSelector, financeUrl, 'finance');
+        // init(categorySelector, scienceUrl, 'science');
+        // init(categorySelector, helthUrl, 'health');
 
     return;
     // return {stockData, chartData};
@@ -129,7 +132,7 @@ async function getTitle(selector, url, category) {
 
     try {
         const browser = await puppeteer.launch({
-            timeout: 180000,
+            timeout: 300000,
             args: ['--no-sandbox', '--disable-setuid-sandbox', '--single-process', '--no-zygote'],
             executablePath: process.env.NODE_ENV === 'production' 
             ? process.env.PUPPETEER_EXECUTABLE_PATH
