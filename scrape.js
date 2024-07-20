@@ -5,7 +5,7 @@ dotenv.config();
 
 import puppeteer from 'puppeteer';
 import cron from 'node-cron';
-import {createApi} from 'unsplash-js';
+import { createApi } from 'unsplash-js';
 
 const categorySelector = 'ul.grid-layout li p';
 const financeSelector = '.titles';
@@ -25,7 +25,7 @@ const deafualtImages = {
 let getTitlecounter = 0;
 
 export default async function scrape(req, res, ticker) {
-    
+
     try {
         cron.schedule('0 10 * * *', () => {
             console.log('starting finance job')
@@ -39,18 +39,18 @@ export default async function scrape(req, res, ticker) {
             console.log('starting world job')
             init(categorySelector, worldUrl, 'world');
         });
-        cron.schedule('0 9 * * *', () => {
+        cron.schedule('0 13 * * *', () => {
             console.log('starting healths job')
             init(categorySelector, helthUrl, 'health');
         });
 
-        // init(categorySelector, worldUrl, 'world');
-        // init(financeSelector, financeUrl, 'finance');
-        // init(categorySelector, scienceUrl, 'science');
-        // init(categorySelector, helthUrl, 'health');
+        // await init(categorySelector, worldUrl, 'world')
+        // await init(financeSelector, financeUrl, 'finance');
+        // await init(categorySelector, scienceUrl, 'science');
+        // await init(categorySelector, helthUrl, 'health');
 
-    return;
-    // return {stockData, chartData};
+        return;
+        // return {stockData, chartData};
     } catch (e) {
         console.log('ERROR HAS ACCURED', e)
     } finally {
@@ -65,15 +65,16 @@ async function init(selector, url, category) {
         // console.log('apiKEy', apiKey)
         const title = await getTitle(selector, url, category);
         console.log('Title', title);
-        
+
         // return;
-    
-        
+
+
         const messages = [
             { role: "system", content: "You are a helpful assistant." },
-            { role: "user", content: `Can you pretend you are a Yahoo reporter that is writing the content of the subject of the main title that is in Yahoo right now. this is the tiltle:
+            {
+                role: "user", content: `Can you pretend you are a Yahoo reporter that is writing the content of the subject of the main title that is in Yahoo right now. this is the tiltle:
             ${title}.
-            The content, title. and subtitle must be original, unique, SEO friendly and between 500-800 words.  
+            The content, title. and subtitle must be original, unique, SEO friendly and between 800-1000 words.  
             Please return a javascript object where properties are srounded with "" with the following properties: 
             title: please create a new title based on the one you got, 
             subtitle:please create a new subtitle based on the one you got,
@@ -86,21 +87,21 @@ async function init(selector, url, category) {
             so its important that this keyword would be the best to describe the topic you write about.
             please make sure you dont use the title and subtitle you got, please make a new one. Could you return it as is, without the '''javascript decoration you add there.` }
         ];
-        
+
         const data = {
             model: "gpt-4o",  // Use gpt-3.5-turbo instead of gpt-4
             messages: messages,
             max_tokens: 2500,
             temperature: 0.7,
         };
-        
-        axios.post('https://api.openai.com/v1/chat/completions', data, {
+
+        const response = await axios.post('https://api.openai.com/v1/chat/completions', data, {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${apiKey}`,
             },
         })
-        .then(async(response) => {
+        try {
             let article = response.data.choices[0].message.content.trim();
             const articleObj = JSON.parse(article)
             articleObj.date = new Date().toDateString();
@@ -113,16 +114,17 @@ async function init(selector, url, category) {
             articleObj.imgUserProfile = imgData.userProfile;
             article = JSON.stringify(articleObj)
             console.log(article);
-        
-            axios.post('https://ai-content-generation-7fd31-default-rtdb.firebaseio.com/generated-content.json', article);
-            return article;
-        })
-        .catch(error => {
-            console.error('Error generating content:', error.response ? error.response.data : error.message);
-        });
 
-    } catch(err) {
-        console.log('***** SOMETHING WENT WRONG!!!!!******', err)
+            axios.post('https://ai-content-generation-7fd31-default-rtdb.firebaseio.com/generated-content.json', article);
+            return Promise.resolve(article);
+
+
+        } catch (err) {
+            console.log('***** SOMETHING WENT WRONG!!!!!******', err)
+        }
+
+    } catch (err) {
+        console.log('***** SOMETHING WENT WRONG in INIT!!!!!******', err)
     }
 
 }
@@ -134,33 +136,33 @@ async function getTitle(selector, url, category) {
         const browser = await puppeteer.launch({
             timeout: 300000,
             args: ['--no-sandbox', '--disable-setuid-sandbox', '--single-process', '--no-zygote'],
-            executablePath: process.env.NODE_ENV === 'production' 
-            ? process.env.PUPPETEER_EXECUTABLE_PATH
-            : puppeteer.executablePath(), 
+            executablePath: process.env.NODE_ENV === 'production'
+                ? process.env.PUPPETEER_EXECUTABLE_PATH
+                : puppeteer.executablePath(),
         });
-    
+
         const page = await browser.newPage();
-    
+
         // Navigate the page to a URL.
         console.log('navigating to url', url);
-        await page.goto(url, {waitUntil: 'load', timeout: 180000});
+        await page.goto(url, { waitUntil: 'load', timeout: 240000 });
         console.log('trying to locate selctor:', selector);
         // Locate the full title with a unique string.
         const textSelector = await page.waitForSelector(selector);
         const fullTitle = await textSelector?.evaluate(el => el.textContent);
-    
+
         // Print the full title.
         getTitlecounter = 0;
         console.log('get title counter is', getTitlecounter)
-    
+
         await browser.close();
         return fullTitle
 
-    } catch(err) {
-        
+    } catch (err) {
+
         getTitlecounter++;
         console.log('GET TITLE FAILED!!!!', err)
-        if (getTitlecounter >=3) {
+        if (getTitlecounter >= 3) {
             init(selector, url, category);
         } else {
             getTitlecounter = 0;
@@ -179,24 +181,24 @@ async function getImgUrl(subtitle, category) {
         fetch: fetch,
     });
 
-     // Fetch a relevant image from Unsplash
-     const imageResponse = await unsplash.search.getPhotos({
+    // Fetch a relevant image from Unsplash
+    const imageResponse = await unsplash.search.getPhotos({
         query: subtitle,
         page: 1,
         perPage: 1,
     });
 
-    const imageUrl = imageResponse.response.results[0]?.urls?.regular;
+    let imageUrl = imageResponse.response.results[0]?.urls?.regular;
     if (!imageUrl) {
         imageUrl = deafualtImages[category]
     }
     const userName = imageResponse.response.results[0]?.user?.name;
     const userProfile = imageResponse.response.results[0]?.user?.links?.html;
 
-        console.log(imageUrl)
-        return {
-            imageUrl,
-            userName,
-            userProfile
+    console.log(imageUrl)
+    return {
+        imageUrl,
+        userName,
+        userProfile
     }
 }
