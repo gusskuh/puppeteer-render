@@ -7,13 +7,112 @@ import puppeteer from 'puppeteer';
 import cron from 'node-cron';
 import { createApi } from 'unsplash-js';
 
-const categorySelector = 'ul.grid-layout li p';
+const categorySelector = 'li.stream-item';
 const financeSelector = '.titles';
 
 const scienceUrl = 'https://www.yahoo.com/news/science/';
 const worldUrl = 'https://www.yahoo.com/news/world/';
 const helthUrl = 'https://www.yahoo.com/lifestyle/tagged/health';
 const financeUrl = 'https://finance.yahoo.com/';
+
+const urls = {
+    science: [
+        {
+            url: 'https://www.yahoo.com/news/science',
+            selector: 'li.stream-item',
+        },
+        {
+            url: 'https://news.sky.com/technology',
+            selector: '.ui-story-headline',
+        },
+        {
+            url: 'https://www.businessinsider.com/science',
+            selector: 'article.with-description',
+        },
+        {
+            url: 'https://www.ft.com/technology',
+            selector: '.o-teaser__content',
+        },
+        {
+            url: 'https://edition.cnn.com/science',
+            selector: '.container__headline',
+        },
+        {
+            url: 'https://www.ibtimes.com/technology',
+            selector: 'article',
+        },
+    ],
+    world: [
+        {
+            url: 'https://www.businessinsider.com/travel',
+            selector: 'article.with-description',
+        },
+        {
+            url: 'https://www.ft.com/world',
+            selector: '.o-teaser__content',
+        },
+        {
+            url: 'https://edition.cnn.com/world',
+            selector: '.container__headline',
+        },
+        {
+            url: 'https://www.ibtimes.com/world',
+            selector: 'article',
+        },
+        {
+            url: 'https://www.yahoo.com/news/world/',
+            selector: 'li.stream-item',
+        },
+    ],
+    health: [
+        {
+            url: 'tps://www.businessinsider.com/health',
+            selector: 'article.with-description',
+        },
+        {
+            url: 'https://edition.cnn.com/health',
+            selector: '.container__headline',
+        },
+        {
+            url: 'https://www.webmd.com/',
+            selector: '.module-text',
+        },
+        {
+            url: 'https://www.healthline.com/',
+            selector: '.css-wqbhht',
+        },
+        {
+            url: 'https://www.yahoo.com/lifestyle/tagged/health',
+            selector: 'li.stream-item',
+        },
+    ],
+    finance: [
+        {
+            url: 'https://www.investing.com/',
+            selector: 'div[data-test="homepage-news-main-item-snippet"]',
+        },
+        {
+            url: 'https://www.businessinsider.com/finance',
+            selector: 'article.with-description',
+        },
+        {
+            url: 'https://www.ft.com/',
+            selector: '.primary-story__teaser',
+        },
+        {
+            url: 'https://edition.cnn.com/business',
+            selector: '.container__headline',
+        },
+        {
+            url: 'https://www.ibtimes.com/economy-markets',
+            selector: 'article',
+        },
+        {
+            url: 'https://finance.yahoo.com',
+            selector: '.titles',
+        },
+    ],
+}
 
 const deafualtImages = {
     finance: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w2MjgwMjR8MHwxfHNlYXJjaHwxfHxmaW5hbmNlfGVufDB8fHx8MTcyMDUxMzcyN3ww&ixlib=rb-4.0.3&q=80&w=1080',
@@ -29,23 +128,56 @@ export default async function scrape(req, res, ticker) {
     try {
         cron.schedule('0 10 * * *', () => {
             console.log('starting finance job')
-            init(financeSelector, financeUrl, 'finance');
+            const randomNumber = getRandomNumber(0, urls.finance.length)
+            const data = urls.finance[randomNumber]
+
+            init(data.selector, data.url, 'finance');
         });
         cron.schedule('0 11 * * *', () => {
             console.log('starting science job')
-            init(categorySelector, scienceUrl, 'science');
+            const randomNumber = getRandomNumber(0, urls.science.length)
+            const data = urls.finance[randomNumber]
+
+            init(data.selector, data.url, 'science');
         });
         cron.schedule('0 12 * * *', () => {
             console.log('starting world job')
-            init(categorySelector, worldUrl, 'world');
+
+            const randomNumber = getRandomNumber(0, urls.world.length)
+            const data = urls.finance[randomNumber]
+
+            init(data.selector, data.url, 'world');
+            
         });
         cron.schedule('0 13 * * *', () => {
             console.log('starting healths job')
-            init(categorySelector, helthUrl, 'health');
+
+            const randomNumber = getRandomNumber(0, urls.health.length)
+            const data = urls.finance[randomNumber]
+
+            init(data.selector, data.url, 'health');
         });
 
         // await init(categorySelector, worldUrl, 'world')
         // await init(financeSelector, financeUrl, 'finance');
+        // await init('.ui-story-headline', 'https://news.sky.com/technology', 'science');
+        // await init('div[data-test="homepage-news-main-item-snippet"]', 'https://www.investing.com/', 'finance');
+        // await init('article.with-description', 'https://www.businessinsider.com/finance', 'finance');...
+        // await init('article.with-description', 'https://www.businessinsider.com/science', 'science');...
+        // await init('article.with-description', 'https://www.businessinsider.com/health', 'health');..
+        // await init('article.with-description', 'https://www.businessinsider.com/travel', 'world');..
+        // await init('.primary-story__teaser', 'https://www.ft.com/', 'finance');...
+        // await init('.o-teaser__content', 'https://www.ft.com/world', 'world');...
+        // await init('.o-teaser__content', 'https://www.ft.com/technology', 'science');..
+        // await init('.container__headline', 'https://edition.cnn.com/world', 'world');..
+        // await init('.container__headline', 'https://edition.cnn.com/business', 'finance');
+        // await init('.container__headline', 'https://edition.cnn.com/science', 'science');
+        // await init('.container__headline', 'https://edition.cnn.com/health', 'health');
+        // await init('article', 'https://www.ibtimes.com/world', 'world');....
+        // await init('article', 'https://www.ibtimes.com/economy-markets', 'finance');
+        // await init('article', 'https://www.ibtimes.com/technology', 'science');
+        // await init('.module-text', 'https://www.webmd.com/', 'health');
+        // await init('.css-wqbhht', 'https://www.healthline.com/', 'health');
         // await init(categorySelector, scienceUrl, 'science');
         // await init(categorySelector, helthUrl, 'health');
 
@@ -66,14 +198,12 @@ async function init(selector, url, category) {
         const title = await getTitle(selector, url, category);
         console.log('Title', title);
 
-        // return;
-
 
         const messages = [
             { role: "system", content: "You are a helpful assistant." },
             {
                 role: "user", content: `Can you pretend you are a Yahoo reporter that is writing the content of the subject of the main title that is in Yahoo right now. this is the tiltle:
-            ${title}.
+            ${title}. please ignore any white spaces, links html tags, or any other things that are not valid text.
             The content, title. and subtitle must be original, unique, SEO friendly and between 800-1000 words.  
             Please return a javascript object where properties are srounded with "" with the following properties: 
             title: please create a new title based on the one you got, 
@@ -113,7 +243,7 @@ async function init(selector, url, category) {
             articleObj.imgUser = imgData.userName;
             articleObj.imgUserProfile = imgData.userProfile;
             article = JSON.stringify(articleObj)
-            console.log(article);
+            // console.log(article);
 
             axios.post('https://ai-content-generation-7fd31-default-rtdb.firebaseio.com/generated-content.json', article);
             return Promise.resolve(article);
@@ -148,7 +278,7 @@ async function getTitle(selector, url, category) {
         await page.goto(url, { waitUntil: 'load', timeout: 240000 });
         console.log('trying to locate selctor:', selector);
         // Locate the full title with a unique string.
-        const textSelector = await page.waitForSelector(selector);
+        const textSelector = await page.waitForSelector(selector, { timeout: 60000 });
         const fullTitle = await textSelector?.evaluate(el => el.textContent);
 
         // Print the full title.
@@ -162,11 +292,11 @@ async function getTitle(selector, url, category) {
 
         getTitlecounter++;
         console.log('GET TITLE FAILED!!!!', err)
-        if (getTitlecounter >= 3) {
+        if (getTitlecounter <= 3) {
             init(selector, url, category);
         } else {
             getTitlecounter = 0;
-            console.log('I tried 2 times and failed')
+            console.log('I tried 3 times and failed')
         }
 
     }
@@ -201,4 +331,8 @@ async function getImgUrl(subtitle, category) {
         userName,
         userProfile
     }
+}
+
+function getRandomNumber(min, max) {
+   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
