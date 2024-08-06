@@ -133,14 +133,14 @@ export default async function scrape(req, res, ticker) {
 
             init(data.selector, data.url, 'finance');
         });
-        cron.schedule('0 11 * * *', () => {
+        cron.schedule('0 9 */3 * *', () => {
             console.log('starting science job')
             const randomNumber = getRandomNumber(0, urls.science.length)
             const data = urls.finance[randomNumber]
 
             init(data.selector, data.url, 'science');
         });
-        cron.schedule('0 12 * * *', () => {
+        cron.schedule('0 8 */3 * *', () => {
             console.log('starting world job')
 
             const randomNumber = getRandomNumber(0, urls.world.length)
@@ -149,7 +149,7 @@ export default async function scrape(req, res, ticker) {
             init(data.selector, data.url, 'world');
             
         });
-        cron.schedule('0 13 * * *', () => {
+        cron.schedule('0 13 */4 * *', () => {
             console.log('starting healths job')
 
             const randomNumber = getRandomNumber(0, urls.health.length)
