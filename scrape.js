@@ -278,7 +278,7 @@ async function getTitle(selector, url, category) {
         await page.goto(url, { waitUntil: 'load', timeout: 240000 });
         console.log('trying to locate selctor:', selector);
         // Locate the full title with a unique string.
-        const textSelector = await page.waitForSelector(selector, { timeout: 60000 });
+        const textSelector = await page.waitForSelector(selector, { timeout: 300000 });
         const fullTitle = await textSelector?.evaluate(el => el.textContent);
 
         // Print the full title.
@@ -293,10 +293,13 @@ async function getTitle(selector, url, category) {
         getTitlecounter++;
         console.log('GET TITLE FAILED!!!!', err)
         if (getTitlecounter <= 3) {
-            init(selector, url, category);
+            setTimeout(()=> {
+                init(selector, url, category);
+            },300000)
         } else {
             getTitlecounter = 0;
             console.log('I tried 3 times and failed')
+            console.log('GET TITLE FAILED!!!!', err)
         }
 
     }
@@ -304,32 +307,37 @@ async function getTitle(selector, url, category) {
 }
 
 async function getImgUrl(subtitle, category) {
-    const unsplashAccessKey = process.env.UNSPLASH_ACCESS_KEY;
+    try {
 
-    const unsplash = createApi({
-        accessKey: unsplashAccessKey,
-        fetch: fetch,
-    });
-
-    // Fetch a relevant image from Unsplash
-    const imageResponse = await unsplash.search.getPhotos({
-        query: subtitle,
-        page: 1,
-        perPage: 1,
-    });
-
-    let imageUrl = imageResponse.response.results[0]?.urls?.regular;
-    if (!imageUrl) {
-        imageUrl = deafualtImages[category]
-    }
-    const userName = imageResponse.response.results[0]?.user?.name;
-    const userProfile = imageResponse.response.results[0]?.user?.links?.html;
-
-    console.log(imageUrl)
-    return {
-        imageUrl,
-        userName,
-        userProfile
+        const unsplashAccessKey = process.env.UNSPLASH_ACCESS_KEY;
+    
+        const unsplash = createApi({
+            accessKey: unsplashAccessKey,
+            fetch: fetch,
+        });
+    
+        // Fetch a relevant image from Unsplash
+        const imageResponse = await unsplash.search.getPhotos({
+            query: subtitle,
+            page: 1,
+            perPage: 1,
+        });
+    
+        let imageUrl = imageResponse.response.results[0]?.urls?.regular;
+        if (!imageUrl) {
+            imageUrl = deafualtImages[category]
+        }
+        const userName = imageResponse.response.results[0]?.user?.name;
+        const userProfile = imageResponse.response.results[0]?.user?.links?.html;
+    
+        console.log(imageUrl)
+        return {
+            imageUrl,
+            userName,
+            userProfile
+        }
+    } catch(err) {
+        console.log('FAILED TO FEtCH IMG URL', err, 'subtitle', subtitle, 'category', category)
     }
 }
 
