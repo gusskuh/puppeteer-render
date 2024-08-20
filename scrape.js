@@ -130,10 +130,10 @@ export default async function scrape(req, res, ticker) {
             console.log('starting finance job')
             const randomNumber = getRandomNumber(0, urls.finance.length)
             const data = urls.finance[randomNumber]
+            console.log('data', data)
 
             init(data.selector, data.url, 'finance');
         });
-        
         // cron.schedule('0 9 */3 * *', () => {
         //     console.log('starting science job')
         //     const randomNumber = getRandomNumber(0, urls.science.length)
@@ -198,61 +198,63 @@ async function init(selector, url, category) {
         // console.log('apiKEy', apiKey)
         const title = await getTitle(selector, url, category);
         console.log('Title', title);
-
-
-        const messages = [
-            { role: "system", content: "You are a helpful assistant." },
-            {
-                role: "user", content: `Can you pretend you are a Yahoo reporter that is writing the content of the subject of the main title that is in Yahoo right now. this is the tiltle:
-            ${title}. please ignore any white spaces, links html tags, or any other things that are not valid text.
-            The content, title. and subtitle must be original, unique, SEO friendly and between 800-1000 words.  
-            Please return a javascript object where properties are srounded with "" with the following properties: 
-            title: please create a new title based on the one you got, 
-            subtitle:please create a new subtitle based on the one you got,
-            metaTitle: a title that will be used for meta tags,
-            metaKeywords: keywords array for meta tags,
-            metaDescription: short description that will be used for meta tags, 
-            content: this is an array of the content you wrote. each elemnet in the array has, subtitle and content propert, (please dont use the words: 'conclusion: or introduction: in the subtitles')
-            timeToRead: how long in minutes it will take to read the article you just created. 
-            keywordForImage: choose the most relevant keyword of the topic you wrote. This will be used to fetch image from an api
-            so its important that this keyword would be the best to describe the topic you write about.
-            please make sure you dont use the title and subtitle you got, please make a new one. Could you return it as is, without the '''javascript decoration you add there.` }
-        ];
-
-        const data = {
-            model: "gpt-4o",  // Use gpt-3.5-turbo instead of gpt-4
-            messages: messages,
-            max_tokens: 2500,
-            temperature: 0.7,
-        };
-
-        const response = await axios.post('https://api.openai.com/v1/chat/completions', data, {
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`,
-            },
-        })
-        try {
-            let article = response.data.choices[0].message.content.trim();
-            const articleObj = JSON.parse(article)
-            articleObj.date = new Date().toDateString();
-            articleObj.timeStamp = Date.now();
-            articleObj.category = category;
-            console.log('articleObj.keywordForImage', articleObj.keywordForImage)
-            const imgData = await getImgUrl(articleObj.keywordForImage, category);
-            articleObj.imgUrl = imgData.imageUrl;
-            articleObj.imgUser = imgData.userName;
-            articleObj.imgUserProfile = imgData.userProfile;
-            article = JSON.stringify(articleObj)
-            // console.log(article);
-
-            axios.post('https://ai-content-generation-7fd31-default-rtdb.firebaseio.com/generated-content.json', article);
-            return Promise.resolve(article);
-
-
-        } catch (err) {
-            console.log('***** SOMETHING WENT WRONG!!!!!******', err)
+        if (title) {
+            const messages = [
+                { role: "system", content: "You are a helpful assistant." },
+                {
+                    role: "user", content: `Can you pretend you are a Yahoo reporter that is writing the content of the subject of the main title that is in Yahoo right now. this is the tiltle:
+                ${title}. please ignore any white spaces, links html tags, or any other things that are not valid text.
+                The content, title. and subtitle must be original, unique, SEO friendly and between 800-1000 words.  
+                Please return a javascript object where properties are srounded with "" with the following properties: 
+                title: please create a new title based on the one you got, 
+                subtitle:please create a new subtitle based on the one you got,
+                metaTitle: a title that will be used for meta tags,
+                metaKeywords: keywords array for meta tags,
+                metaDescription: short description that will be used for meta tags, 
+                content: this is an array of the content you wrote. each elemnet in the array has, subtitle and content propert, (please dont use the words: 'conclusion: or introduction: in the subtitles')
+                timeToRead: how long in minutes it will take to read the article you just created. 
+                keywordForImage: choose the most relevant keyword of the topic you wrote. This will be used to fetch image from an api
+                so its important that this keyword would be the best to describe the topic you write about.
+                please make sure you dont use the title and subtitle you got, please make a new one. Could you return it as is, without the '''javascript decoration you add there.` }
+            ];
+    
+            const data = {
+                model: "gpt-4o",  // Use gpt-3.5-turbo instead of gpt-4
+                messages: messages,
+                max_tokens: 2500,
+                temperature: 0.7,
+            };
+    
+            const response = await axios.post('https://api.openai.com/v1/chat/completions', data, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`,
+                },
+            })
+            try {
+                let article = response.data.choices[0].message.content.trim();
+                const articleObj = JSON.parse(article)
+                articleObj.date = new Date().toDateString();
+                articleObj.timeStamp = Date.now();
+                articleObj.category = category;
+                console.log('articleObj.keywordForImage', articleObj.keywordForImage)
+                const imgData = await getImgUrl(articleObj.keywordForImage, category);
+                articleObj.imgUrl = imgData.imageUrl;
+                articleObj.imgUser = imgData.userName;
+                articleObj.imgUserProfile = imgData.userProfile;
+                article = JSON.stringify(articleObj)
+                // console.log(article);
+    
+                axios.post('https://ai-content-generation-7fd31-default-rtdb.firebaseio.com/generated-content.json', article);
+                return Promise.resolve(article);
+    
+    
+            } catch (err) {
+                console.log('***** SOMETHING WENT WRONG!!!!!******', err)
+            }
         }
+
+
 
     } catch (err) {
         console.log('***** SOMETHING WENT WRONG in INIT!!!!!******', err)
