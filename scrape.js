@@ -233,20 +233,23 @@ async function init(selector, url, category) {
             })
             try {
                 let article = response.data.choices[0].message.content.trim();
-                const articleObj = JSON.parse(article)
-                articleObj.date = new Date().toDateString();
-                articleObj.timeStamp = Date.now();
-                articleObj.category = category;
-                console.log('articleObj.keywordForImage', articleObj.keywordForImage)
-                const imgData = await getImgUrl(articleObj.keywordForImage, category);
-                articleObj.imgUrl = imgData.imageUrl;
-                articleObj.imgUser = imgData.userName;
-                articleObj.imgUserProfile = imgData.userProfile;
-                article = JSON.stringify(articleObj)
-                // console.log(article);
-    
-                axios.post('https://ai-content-generation-7fd31-default-rtdb.firebaseio.com/generated-content.json', article);
-                return Promise.resolve(article);
+                if (article) {
+                    const articleObj = JSON.parse(article)
+                    articleObj.date = new Date().toDateString();
+                    articleObj.timeStamp = Date.now();
+                    articleObj.category = category;
+                    console.log('articleObj.keywordForImage', articleObj.keywordForImage)
+                    const imgData = await getImgUrl(articleObj.keywordForImage, category);
+                    articleObj.imgUrl = imgData.imageUrl;
+                    articleObj.imgUser = imgData.userName;
+                    articleObj.imgUserProfile = imgData.userProfile;
+                    article = JSON.stringify(articleObj)
+                    // console.log(article);
+        
+                    axios.post('https://ai-content-generation-7fd31-default-rtdb.firebaseio.com/generated-content.json', article);
+                    return Promise.resolve(article);
+                }
+                return Promise.resolve(null);
     
     
             } catch (err) {
@@ -297,7 +300,12 @@ async function getTitle(selector, url, category) {
         console.log('GET TITLE FAILED!!!!', err)
         if (getTitlecounter <= 3) {
             setTimeout(()=> {
-                init(selector, url, category);
+                const randomNumber = getRandomNumber(0, urls[category].length)
+                const data = urls[category][randomNumber];
+                console.log('data', data)
+    
+                init(data.selector, data.url, category);
+                // init(selector, url, category);
             },300000)
         } else {
             getTitlecounter = 0;
