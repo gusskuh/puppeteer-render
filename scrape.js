@@ -3,7 +3,6 @@ import fetch from 'node-fetch';
 import dotenv from 'dotenv';
 dotenv.config();
 
-import puppeteer from 'puppeteer';
 import cron from 'node-cron';
 import { createApi } from 'unsplash-js';
 
@@ -128,12 +127,14 @@ export default async function scrape(req, res, ticker) {
     try {
         cron.schedule('0 10 * * *', () => {
             console.log('starting finance job')
-            const randomNumber = getRandomNumber(0, urls.finance.length)
-            const data = urls.finance[randomNumber]
-            console.log('data', data)
+            // const randomNumber = getRandomNumber(0, urls.finance.length)
+            // const data = urls.finance[randomNumber]
+            // console.log('data', data)
 
-            init(data.selector, data.url, 'finance');
+            init('business');
         });
+
+        init('business');
         // cron.schedule('0 9 */3 * *', () => {
         //     console.log('starting science job')
         //     const randomNumber = getRandomNumber(0, urls.science.length)
@@ -191,12 +192,13 @@ export default async function scrape(req, res, ticker) {
     }
 }
 
-async function init(selector, url, category) {
+async function init(category) {
     try {
         console.log('Starting...')
         const apiKey = process.env.AI_API_KEY;
-        // console.log('apiKEy', apiKey)
-        const title = await getTitle(selector, url, category);
+        const title = await getNewsTitleFromApi();
+        console.log(title)
+
         console.log('Title', title);
         if (title) {
             const messages = [
@@ -237,9 +239,9 @@ async function init(selector, url, category) {
                     const articleObj = JSON.parse(article)
                     articleObj.date = new Date().toDateString();
                     articleObj.timeStamp = Date.now();
-                    articleObj.category = category;
+                    articleObj.category = 'finance';
                     console.log('articleObj.keywordForImage', articleObj.keywordForImage)
-                    const imgData = await getImgUrl(articleObj.keywordForImage, category);
+                    const imgData = await getImgUrl(articleObj.keywordForImage, 'finance');
                     articleObj.imgUrl = imgData.imageUrl;
                     articleObj.imgUser = imgData.userName;
                     articleObj.imgUserProfile = imgData.userProfile;
@@ -265,56 +267,11 @@ async function init(selector, url, category) {
 
 }
 
-async function getTitle(selector, url, category) {
-    // Launch the browser and open a new blank page
-
-    try {
-        const browser = await puppeteer.launch({
-            timeout: 300000,
-            args: ['--no-sandbox', '--disable-setuid-sandbox', '--single-process', '--no-zygote'],
-            executablePath: process.env.NODE_ENV === 'production'
-                ? process.env.PUPPETEER_EXECUTABLE_PATH
-                : puppeteer.executablePath(),
-        });
-
-        const page = await browser.newPage();
-
-        // Navigate the page to a URL.
-        console.log('navigating to url', url);
-        await page.goto(url, { waitUntil: 'load', timeout: 240000 });
-        console.log('trying to locate selctor:', selector);
-        // Locate the full title with a unique string.
-        const textSelector = await page.waitForSelector(selector, { timeout: 300000 });
-        const fullTitle = await textSelector?.evaluate(el => el.textContent);
-
-        // Print the full title.
-        getTitlecounter = 0;
-        console.log('get title counter is', getTitlecounter)
-
-        await browser.close();
-        return fullTitle
-
-    } catch (err) {
-
-        getTitlecounter++;
-        console.log('GET TITLE FAILED!!!!', err)
-        if (getTitlecounter <= 3) {
-            setTimeout(()=> {
-                const randomNumber = getRandomNumber(0, urls[category].length)
-                const data = urls[category][randomNumber];
-                console.log('data', data)
-    
-                init(data.selector, data.url, category);
-                // init(selector, url, category);
-            },300000)
-        } else {
-            getTitlecounter = 0;
-            console.log('I tried 3 times and failed')
-            console.log('GET TITLE FAILED!!!!', err)
-        }
-
-    }
-
+async function getNewsTitleFromApi() {
+    const result = await axios.get(`https://newsapi.org/v2/top-headlines?country=us&category=business&apiKey=${process.env.NEWS_API_KEY}`);
+    const index = getRandomNumber(0, result.data.articles.length);
+    console.log(result.data.articles[index].title)
+    return result.data.articles[index].title;
 }
 
 async function getImgUrl(subtitle, category) {
