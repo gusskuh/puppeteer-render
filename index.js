@@ -1,6 +1,8 @@
 import express from 'express';
 const app = express();
 
+const router = express.Router();
+
 import scrape from './scrape.js';
 scrape();
 
@@ -17,3 +19,6 @@ app.get('/get-title',async (req, res) => {
 app.listen(6543, () => {
     console.log('App is listening on port 6543')
 })
+
+app.use('/.netlify/functions/app', router);
+module.exports.handler = serverless(app);

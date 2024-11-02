@@ -6,6 +6,9 @@ dotenv.config();
 import cron from 'node-cron';
 import { createApi } from 'unsplash-js';
 
+import SocialMediaAPI from 'social-media-api';
+const social = new SocialMediaAPI(process.env.SOCIAL_MEDIA_API_KEY);
+
 const categorySelector = 'li.stream-item';
 const financeSelector = '.titles';
 
@@ -195,6 +198,7 @@ export default async function scrape(req, res, ticker) {
 async function init(category) {
     try {
         console.log('Starting...')
+      
         const apiKey = process.env.AI_API_KEY;
         const title = await getNewsTitleFromApi();
         console.log(title)
@@ -217,7 +221,10 @@ async function init(category) {
                 timeToRead: how long in minutes it will take to read the article you just created. 
                 keywordForImage: choose the most relevant keyword of the topic you wrote. This will be used to fetch image from an api
                 so its important that this keyword would be the best to describe the topic you write about.
-                please make sure you dont use the title and subtitle you got, please make a new one. Could you return it as is, without the '''javascript decoration you add there.` }
+                please make sure you dont use the title and subtitle you got, please make a new one. Could you return it as is, without the '''javascript decoration you add there.
+                socialMediaSummary: summarize the article for social media post. This summary should be short and just give the jist of the article.
+                ticker: If in the article you created a company that is trades in the NYES or NASDAQ, or in the us market, is mentioned. please set the stock ticker in this property. So for example
+                if in the article Amazon was mentioned please set the ticker propery to AMZN since its their stock ticker. If you cant determine a stock ticker set the value to null` }
             ];
     
             const data = {
@@ -248,7 +255,23 @@ async function init(category) {
                     article = JSON.stringify(articleObj)
                     // console.log(article);
         
-                    axios.post('https://ai-content-generation-7fd31-default-rtdb.firebaseio.com/generated-content.json', article);
+                    const resultFromFireBase = await axios.post('https://ai-content-generation-7fd31-default-rtdb.firebaseio.com/generated-content.json', article);
+                    console.log('resultFromFireBase', resultFromFireBase.data.name);
+                    const firebaseId = resultFromFireBase.data.name;
+                    const titleForUrl = encodeURIComponent(articleObj.title.split(' ').join('-'))
+                    const articlePth = `https://new-content-ivory.vercel.app/${articleObj.category}/${titleForUrl}/${firebaseId}`;
+                    console.log('articlePth', articlePth);
+                    // const post = await social.post({
+                    //     post: `${articleObj.socialMediaSummary} - read more here: ${articlePth}`,
+                    //     platforms: ['pinterest', 'facebook', 'linkedin', 'twitter', 'reddit'],
+                    //     mediaUrls: [articleObj.imgUrl],
+                    //     title: articleObj.title,
+                    //     subreddit: 'investingforbeginners'
+                    //   }).catch(console.error);
+                    //   console.log(post);
+                        //  console.log(article);
+                    
+                    
                     return Promise.resolve(article);
                 }
                 return Promise.resolve(null);

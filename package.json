@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "start": "node index.js",
+    "build": "netlify deploy --prod"
   },
   "author": "",
   "license": "ISC",
@@ -16,6 +17,7 @@
     "express": "^4.19.2",
     "node-cron": "^3.0.3",
     "node-fetch": "^3.3.2",
+    "social-media-api": "^1.2.3",
     "unsplash-js": "^7.0.19"
   }
 }
