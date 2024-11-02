@@ -2,6 +2,7 @@ import express from 'express';
 const app = express();
 
 const router = express.Router();
+const serverless = require("serverless-http");
 
 import scrape from './scrape.js';
 scrape();
