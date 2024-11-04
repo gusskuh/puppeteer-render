@@ -17,9 +17,9 @@ router.get('/get-title',async (req, res) => {
     res.send(article);
 })
 
-router.listen(6543, () => {
+app.listen(6543, () => {
     console.log('App is listening on port 6543')
 })
 
 app.use('/.netlify/functions/app', router);
-module.exports.handler = serverless(app);
+export const handler = serverless(app);
