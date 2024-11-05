@@ -7,6 +7,9 @@ const serverless = require('serverless-http');
 const app = express();
 const router = express.Router();
 
+import scrape from './scrape.js';
+scrape();
+
 console.log('Starting')
 
 
