@@ -7,6 +7,8 @@ const serverless = require('serverless-http');
 const app = express();
 const router = express.Router();
 
+console.log('Starting')
+
 
 router.get('/hello', (req, res) => res.json('Hello World!'));
 router.get('/', (req, res) => res.json('its working finally'));
