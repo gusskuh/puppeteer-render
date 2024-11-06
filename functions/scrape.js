@@ -198,6 +198,9 @@ export default async function scrape(req, res, ticker) {
 async function init(category) {
     try {
         console.log('Starting...')
+        setInterval(()=>{
+            console.log('hey')
+        }, 1000)
       
         const apiKey = process.env.AI_API_KEY;
         const title = await getNewsTitleFromApi();
