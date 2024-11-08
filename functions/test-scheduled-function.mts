@@ -3,6 +3,7 @@ import axios from 'axios';
 import fetch from 'node-fetch';
 import dotenv from 'dotenv';
 dotenv.config();
+import https from 'https';
 
 import cron from 'node-cron';
 import { createApi } from 'unsplash-js';
@@ -21,7 +22,13 @@ export default async (req: Request) => {
     const { next_run } = await req.json()
 
     console.log("Received event! Next invocation at:", next_run)
-    init('finance');
+    const agent = new https.Agent({ keepAlive: true });
+
+fetch('https://catfact.ninja/fact', { agent })
+  .then(response => response.json())
+  .then(data => console.log(data))
+  .catch(error => console.error('Fetch error:', error));
+
 }
 
 async function init(category) {
@@ -173,5 +180,5 @@ function getRandomNumber(min, max) {
 }
 
 export const config: Config = {
-    schedule: "* * * * *"
+    schedule: "*/2 * * * *"
 }
