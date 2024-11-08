@@ -21,13 +21,18 @@ const deafualtImages = {
 export default async (req: Request) => {
     const { next_run } = await req.json()
 
-    console.log("Received event! Next invocation at:", next_run)
-    const agent = new https.Agent({ keepAlive: true });
+//     console.log("Received event! Next invocation at:", next_run)
+//     const agent = new https.Agent({ keepAlive: true });
 
-fetch('https://catfact.ninja/fact', { agent })
-  .then(response => response.json())
-  .then(data => console.log(data))
-  .catch(error => console.error('Fetch error:', error));
+// fetch('https://catfact.ninja/fact', { agent })
+//   .then(response => response.json())
+//   .then(data => console.log(data))
+//   .catch(error => console.error('Fetch error:', error));
+let counter= 0;
+    setInterval(()=>{
+        counter++;
+        console.log('hey ' + counter);
+    }, 1000)
 
 }
 
