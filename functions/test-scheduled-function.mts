@@ -122,7 +122,9 @@ async function init(category) {
 
 async function getNewsTitleFromApi() {
     console.log('get title: + key', process.env.NEWS_API_KEY)
-    const result: any = await fetch(`https://newsapi.org/v2/top-headlines?country=us&category=business&apiKey=${process.env.NEWS_API_KEY}`);
+    const resultApi: any = await fetch(`https://newsapi.org/v2/top-headlines?country=us&category=business&apiKey=${process.env.NEWS_API_KEY}`);
+    const result = await resultApi.json();
+    console.log(result)
     const index = getRandomNumber(0, result.articles.length);
     console.log(result.articles[index].title)
     return result.articles[index].title;
