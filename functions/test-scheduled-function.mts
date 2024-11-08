@@ -29,6 +29,7 @@ async function init(category) {
         console.log('Starting...')
       
         const apiKey = process.env.AI_API_KEY;
+        console.log('apiKey', apiKey)
         const title = await getNewsTitleFromApi();
         console.log(title)
 
@@ -120,6 +121,7 @@ async function init(category) {
 }
 
 async function getNewsTitleFromApi() {
+    console.log('get title: + key', process.env.NEWS_API_KEY)
     const result = await axios.get(`https://newsapi.org/v2/top-headlines?country=us&category=business&apiKey=${process.env.NEWS_API_KEY}`);
     const index = getRandomNumber(0, result.data.articles.length);
     console.log(result.data.articles[index].title)
@@ -166,5 +168,5 @@ function getRandomNumber(min, max) {
 }
 
 export const config: Config = {
-    schedule: "*/3 * * * *"
+    schedule: "* * * * *"
 }
