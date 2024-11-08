@@ -31,6 +31,7 @@ async function init(category) {
         const apiKey = process.env.AI_API_KEY;
         console.log('apiKey', apiKey)
         const title = await getNewsTitleFromApi();
+        return;
         console.log(title)
 
         console.log('Title', title);
@@ -122,9 +123,11 @@ async function init(category) {
 
 async function getNewsTitleFromApi() {
     console.log('get title: + key', process.env.NEWS_API_KEY)
-    const resultApi: any = await fetch(`https://newsapi.org/v2/top-headlines?country=us&category=business&apiKey=${process.env.NEWS_API_KEY}`);
+    // const resultApi: any = await fetch(`https://newsapi.org/v2/top-headlines?country=us&category=business&apiKey=${process.env.NEWS_API_KEY}`);
+    const resultApi: any = await fetch(`https://catfact.ninja/fact`);
     const result = await resultApi.json();
     console.log(result)
+    return; 
     const index = getRandomNumber(0, result.articles.length);
     console.log(result.articles[index].title)
     return result.articles[index].title;
